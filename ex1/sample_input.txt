@@ -1,0 +1,7 @@
+Herbert Paul 32000 34 2
+Lynch Frank 52000 48 1
+Bowie Luke 28000 24 4
+Fisher Alexandra 28000 25 4
+Cooper Keira 32000 32 3
+Allen Jake 24000 21 4
+Coates Laura 26000 22 4

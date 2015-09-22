@@ -4,19 +4,17 @@
 #include <stdio.h>
 #include <string>
 
-class employee {
-public:
-    employee(std::string lastname_, std::string surname_, float salary_, int age_, int clearanceLevel_);
-    bool operator < (const employee &other) const {
-        return _salary < other._salary;
-    }
-
-private:
-    std::string _lastname;
-    std::string _surname;
-    float _salary;
-    int _clearanceLevel;
-    int _age;
+struct employee {
+    std::string lastname;
+    std::string surname;
+    float salary;
+    int age;
+    int clearanceLevel;
 };
 
-#endif /* employee_hpp */
+struct employee_cmp {
+    bool operator()(const employee &a, employee &b) const {
+        return a.salary < b.salary;
+    }
+};
+#endif

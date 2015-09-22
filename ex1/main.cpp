@@ -2,35 +2,28 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include <algorithm>
-#include <iterator>
 #include "employee.hpp"
 
-std::string buf;
+std::string buffer;
 std::vector<employee> data;
 
-void readFile(std::string fileName) {
-    std::string lastname;
-    std::string surname;
-    float salary;
-    int age;
-    int clearanceLevel;
-    
-    std::ifstream fin("/Users/lukasvollenweider/Desktop/exercise1/sample_input.txt");
+void parseFile(std::string fileName) {
+    std::ifstream fin(fileName);
     if (fin.is_open()) {
-        while (std::getline(fin, buf)) {
-            std::stringstream ss(buf);
-            ss >> lastname >> surname >> salary >> age >> clearanceLevel;
-            employee emp = employee(lastname, surname, salary, age, clearanceLevel);
+        while (std::getline(fin, buffer)) {
+            std::stringstream ss(buffer);
+            employee emp;
+            ss >> emp.lastname >> emp.surname >> emp.salary >> emp.age >> emp.clearanceLevel;
             data.push_back(emp);
         }
     }
-    std::sort(data.begin(), data.end());
-    /*std::ofstream output_file("./example.txt");
-    std::ostream_iterator<std::string> output_iterator(output_file, "\n");
-    std::copy(data.begin(), data.end(), output_iterator);*/
-    std::ofstream outputFile("program3data.txt");
-    outputFile << "writing to file";
+    employee_cmp compare_functor;
+    std::sort(data.begin(), data.end(), compare_functor);
+    std::ofstream output("sorted_db.txt");
+    for (auto emp : data) {
+        output << emp.lastname << " " << emp.surname << " " << emp.salary << " " << emp.age
+        << " " << emp.clearanceLevel << std::endl;
+    }
 }
 
 int main(int argc, const char * argv[]) {
@@ -38,10 +31,8 @@ int main(int argc, const char * argv[]) {
         std::cout << argv[0] << " called without input args\n";
     } else {
         for (int i = 1; i < argc; i++) {
-            readFile(argv[1]);
+            parseFile(argv[1]);
         }
     }
     return 0;
 }
-
-

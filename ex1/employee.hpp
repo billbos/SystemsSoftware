@@ -5,8 +5,8 @@
 #include <string>
 
 struct employee {
-    std::string lastname;
     std::string surname;
+    std::string name;
     float salary;
     int age;
     int clearanceLevel;

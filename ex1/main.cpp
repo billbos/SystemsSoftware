@@ -13,7 +13,7 @@ void parseFile(std::string fileName) {
         while (std::getline(fin, buffer)) {
             std::stringstream ss(buffer);
             employee emp;
-            ss >> emp.lastname >> emp.surname >> emp.salary >> emp.age >> emp.clearanceLevel;
+            ss >> emp.surname >> emp.name >> emp.salary >> emp.age >> emp.clearanceLevel;
             data.push_back(emp);
         }
     }
@@ -21,7 +21,7 @@ void parseFile(std::string fileName) {
     std::sort(data.begin(), data.end(), compare_functor);
     std::ofstream output("sorted_db.txt");
     for (auto emp : data) {
-        output << emp.lastname << " " << emp.surname << " " << emp.salary << " " << emp.age
+        output << emp.surname << " " << emp.name << " " << emp.salary << " " << emp.age
         << " " << emp.clearanceLevel << std::endl;
     }
 }

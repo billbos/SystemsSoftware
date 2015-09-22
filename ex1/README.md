@@ -1,9 +1,9 @@
 # Compiling
 1. open terminal and go to directory "ex1"
-2. in terminal: "make"
+2. `make`
 
 # Running
-3. in terminal: "./employee_exec "sample_input.txt"
+3. `./employee_exec "sample_input.txt"`
 
 # Clean-up
-4. in terminal: "make clean"
+4. `make clean`

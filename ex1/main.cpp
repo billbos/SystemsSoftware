@@ -8,22 +8,24 @@ std::string buffer;
 std::vector<employee> data;
 
 void parseFile(std::string fileName) {
-    std::ifstream fin(fileName);
-    if (fin.is_open()) {
-        while (std::getline(fin, buffer)) {
+    std::ifstream dataFile(fileName);
+    if (dataFile.is_open()) {
+        while (std::getline(dataFile, buffer)) {
             std::stringstream ss(buffer);
             employee emp;
             ss >> emp.surname >> emp.name >> emp.salary >> emp.age >> emp.clearanceLevel;
             data.push_back(emp);
         }
+        dataFile.close();
     }
     employee_cmp compare_functor;
     std::sort(data.begin(), data.end(), compare_functor);
     std::ofstream output("sorted_db.txt");
-    for (auto emp : data) {
+    for (employee emp : data) {
         output << emp.surname << " " << emp.name << " " << emp.salary << " " << emp.age
         << " " << emp.clearanceLevel << std::endl;
     }
+    output.close();
 }
 
 int main(int argc, const char * argv[]) {

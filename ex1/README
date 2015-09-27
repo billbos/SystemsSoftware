@@ -1,5 +1,5 @@
 This program parses a .txt file ("sample_input.txt") which contains several employees (one per line, each have a surname, name, salary, age and a clearance level). It uses a simple struct as the data structure to store an employee and then sorts all employees (which are stored in a vector) by there salary and save the sorted result as "sorted_db.txt".
 
 Authors
-Bill Bosshard
+Bill Bosshard (12-933-255)
 Lukas Vollenweider (13-751-888)

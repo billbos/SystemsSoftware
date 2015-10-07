@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <stdlib.h>
-#include <sstream>
 
 // count the occurrences of pattern_ inside the filename_ and write the result (a single number) to a file called "result_PID.txt",
 // where PID is the process id of the calling process. NOTE: must use execl to perform the count and write to file!

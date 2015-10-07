@@ -32,11 +32,14 @@ void occurrences_in_file( const std::string& filename_, const std::string& patte
 
 int read_occurrences_file( const std::string& filename_ )
 {
+	std::string line;
 	std::cout << filename_ << std::endl;
 	std::ifstream dataFile(filename_);
     if (dataFile.is_open()) {
+    	getline(dataFile, line);
+    	remove_if(line.begin(), line.end(), isspace);
     }
-    return 0;
+    return std::stoi(line);
 }
 
 
@@ -91,6 +94,8 @@ int main( int argc, char* argv[] )
   	std::string filename = "result_" + std::to_string(pids[i]) + ".txt";
   	result += read_occurrences_file(filename);
   }
+
+  std::cout << result << std::endl;
   
   delete[] status;
   delete[] pids;

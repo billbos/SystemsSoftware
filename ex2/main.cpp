@@ -11,7 +11,7 @@
 void occurrences_in_file( const std::string& filename_, const std::string& pattern_ )
 {
   int my_pid = getpid();
-  std::string result = "result-" + std::to_string(my_pid) + ".txt";
+  std::string result = "result_" + std::to_string(my_pid) + ".txt";
 
   std::string search_command = "grep -o '" + pattern_ + "'" + " " + filename_ + " | wc -l > " + result;
   const char * search_command_c = search_command.c_str();
@@ -32,17 +32,11 @@ void occurrences_in_file( const std::string& filename_, const std::string& patte
 
 int read_occurrences_file( const std::string& filename_ )
 {
-	int result;
 	std::cout << filename_ << std::endl;
-	std::string buffer;
 	std::ifstream dataFile(filename_);
     if (dataFile.is_open()) {
-        while (std::getline(dataFile, buffer)) {
-            std::stringstream ss(buffer);
-            std::cout << "ss" << std::endl;
-        }
-        dataFile.close();
     }
+    return 0;
 }
 
 
@@ -79,15 +73,14 @@ int main( int argc, char* argv[] )
   }
 
   // wait for termination and check termination
-  /*for( int f = 0; f < files_count; f++ )
+  for( int f = 0; f < files_count; f++ )
   {
   	wait(&status[f]);
 
   	if (WIFEXITED(status[f])) {
   		std::cout << "Child terminated normally" << std::endl;
-  		return 0;
   	}
-  }*/
+  }
   
 
   // open results files, compute overall number of occurrences and print it to standard output
@@ -95,7 +88,7 @@ int main( int argc, char* argv[] )
   int result = 0;
 
   for(int i = 0; i < files_count; i++) {
-  	std::string filename = "result-" + std::to_string(pids[i]) + ".txt";
+  	std::string filename = "result_" + std::to_string(pids[i]) + ".txt";
   	result += read_occurrences_file(filename);
   }
   

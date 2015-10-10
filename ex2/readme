@@ -1,0 +1,21 @@
+Authors:
+Bill Bosshard (12-933-255)
+Lukas Vollenweider (13-751-888)
+
+Functionality
+The program opens several files and checks the occurrences of a given pattern in each file. It does this by creating a process for each file to check them simultaneously. Each process saves the result in a file which afterwards are opened by the main process. The main process adds up all results and prints the solution.
+
+Input parameters
+This program needs at least two input parameters
+- The first parameter is the pattern ("pattern") which can be a string or a regex pattern
+- The other parameters are the filenames ("filename.txt") which provide the text to search for the pattern
+
+Output
+Number of occurrences of the chosen pattern in the chosen files
+
+Possible error occurrences
+- creation of new child processes ("Error on fork()")
+- termination of execl ("Error: execl failed")
+- child termination ("Error on child termination")
+- open result files ("Error: could not open file")
+

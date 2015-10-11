@@ -14,8 +14,8 @@ Output
 Number of occurrences of the chosen pattern in the chosen files
 
 Possible error occurrences
-- creation of new child processes ("Error on fork()")
-- termination of execl ("Error: execl failed")
-- child termination ("Error on child termination")
-- open result files ("Error: could not open file")
+- creation of new child processes failed ("Error on fork()")
+- termination of execl failed (“Error: execl failed")
+- child termination failed(“Error on child termination")
+- open result-files failed(“Error: could not open file")
 

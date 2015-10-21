@@ -11,17 +11,32 @@
 // using a window of size window_size_
 // the function returns the new filtered value p'(r_,c_)
 float median_filter_pixel( const image_matrix& input_image_,
-                           int r_,
-                           int c_,
-                           int window_size_ )
+						   int r_,
+						   int c_,
+						   int window_size_ )
 {
-  float filtered_value;
+	int n_rows = input_image_.get_n_rows();
+	int n_cols = input_image_.get_n_cols();
+	
+	float filtered_value;
+	std::vector<float> window_vector;
+	
+	for (int i = std::max(0, r_ - window_size_/2); i <= r_ + window_size_/2; i++) {
+		if (i >= n_rows) {
+			break;
+		}
+		for (int j = std::max(0, c_ - window_size_/2); j <= c_ + window_size_/2; j++) {
+			if (j >= n_cols) {
+				break;
+			}
+			window_vector.push_back(input_image_.get_pixel(i, j));    
+		}
+	}
 
-  // ...
-
-  return filtered_value;
+	std::sort(window_vector.begin(), window_vector.end());
+	filtered_value = window_vector[window_vector.size() / 2];
+	return filtered_value;
 }
-
 
 // struct passed to each thread, containing the information necessary
 // to process its assigned range
@@ -51,25 +66,25 @@ bool read_input_image( const std::string& filename_, image_matrix& image_in_ )
   std::ifstream is( filename_.c_str() );
   if( is.is_open() )
   {
-    int n_rows;
-    int n_cols;
+	int n_rows;
+	int n_cols;
 
-    is >> n_rows;
-    is >> n_cols;
+	is >> n_rows;
+	is >> n_cols;
 
-    image_in_.resize( n_rows, n_cols );
+	image_in_.resize( n_rows, n_cols );
 
-    for( int r = 0; r < n_rows; r++ )
-    {
-      for( int c = 0; c < n_cols; c++ )
-      {
-        float value;
-        is >> value;
-        image_in_.set_pixel( r, c, value );
-      }
-    }
-    is.close();
-    ret = true;
+	for( int r = 0; r < n_rows; r++ )
+	{
+	  for( int c = 0; c < n_cols; c++ )
+	  {
+		float value;
+		is >> value;
+		image_in_.set_pixel( r, c, value );
+	  }
+	}
+	is.close();
+	ret = true;
   }
   return ret;
 }
@@ -82,22 +97,22 @@ bool write_filtered_image( const image_matrix& image_out_ )
   std::ofstream os( "filtered.txt" );
   if( os.is_open() )
   {
-    int n_rows = image_out_.get_n_rows();
-    int n_cols = image_out_.get_n_cols();
+	int n_rows = image_out_.get_n_rows();
+	int n_cols = image_out_.get_n_cols();
 
-    os << n_rows << std::endl;
-    os << n_cols << std::endl;
+	os << n_rows << std::endl;
+	os << n_cols << std::endl;
 
-    for( int r = 0; r < n_rows; r++ )
-    {
-      for( int c = 0; c < n_cols; c++ )
-      {
-        os << image_out_.get_pixel( r, c ) << " ";
-      }
-      os << std::endl;
-    }
-    os.close();
-    ret = true;
+	for( int r = 0; r < n_rows; r++ )
+	{
+	  for( int c = 0; c < n_cols; c++ )
+	  {
+		os << image_out_.get_pixel( r, c ) << " ";
+	  }
+	  os << std::endl;
+	}
+	os.close();
+	ret = true;
   }
   return ret;
 }
@@ -108,8 +123,8 @@ int main( int argc, char* argv[] )
 {
   if( argc < 5 )
   {
-    std::cerr << "Not enough arguments provided to " << argv[ 0 ] << ". Terminating." << std::endl;
-    return 1;
+	std::cerr << "Not enough arguments provided to " << argv[ 0 ] << ". Terminating." << std::endl;
+	return 1;
   }
 
   // get input arguments
@@ -136,37 +151,37 @@ int main( int argc, char* argv[] )
   // start with the actual processing
   if( mode == 0 )
   {
-    // ******    SERIAL VERSION     ******
+	// ******    SERIAL VERSION     ******
 
-    for( int r = 0; r < n_rows; r++ )
-    {
-      for( int c = 0; c < n_cols; c++ )
-      {
-        float p_rc_filt = median_filter_pixel( input_image, r, c, window_size );
-        filtered_image.set_pixel( r, c, p_rc_filt );
-      }
-    }
-
-    // ***********************************
+	for( int r = 0; r < n_rows; r++ )
+	{
+	  for( int c = 0; c < n_cols; c++ )
+	  {
+		float p_rc_filt = median_filter_pixel( input_image, r, c, window_size );
+		filtered_image.set_pixel( r, c, p_rc_filt );
+	  }
+	}
+	float p_rc_filt = median_filter_pixel( input_image, 2, 2, window_size);
+	// ***********************************
   }
   else if( mode == 1 )
   {
-    // ******   PARALLEL VERSION    ******
+	// ******   PARALLEL VERSION    ******
 
-    // declaration of pthread_t variables for the threads
+	// declaration of pthread_t variables for the threads
 
-    // declaration of the struct variables to be passed to the threads
+	// declaration of the struct variables to be passed to the threads
 
-    // create threads
+	// create threads
 
-    // wait for termination of threads
+	// wait for termination of threads
 
-    // ***********************************
+	// ***********************************
   }
   else
   {
-    std::cerr << "Invalid mode. Terminating" << std::endl;
-    return 1;
+	std::cerr << "Invalid mode. Terminating" << std::endl;
+	return 1;
   }
 
   // write filtered matrix to file

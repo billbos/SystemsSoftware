@@ -42,25 +42,23 @@ float median_filter_pixel( const image_matrix& input_image_,
 // to process its assigned range
 struct task
 {
-	image_matrix& input_image;
-	//image_matrix& filtered_image;
-	int firstRow, lastRow, window_size, id;
+	const image_matrix& input_image;
+	image_matrix& filtered_image;
+	int firstRow, lastRow, window_size;
 };
 
 // function run by each thread
 void* func( void* arg ) 
 {
   	task* t_arg = ( task* )arg;
-
-  	std::cout << t_arg->id << std::endl;
-  	/*int n_cols = t_arg->input_image.get_n_cols();
-
+  	
+  	int n_cols = t_arg->input_image.get_n_cols();
   	for( int r = t_arg->firstRow; r < t_arg->lastRow; r++ ) {
 	  	for( int c = 0; c < n_cols; c++ ) {
 			float p_rc_filt = median_filter_pixel( t_arg->input_image, r, c, t_arg->window_size );
 			t_arg->filtered_image.set_pixel( r, c, p_rc_filt );
 	  	}
-	}*/
+	}
   	pthread_exit( NULL );
 }
 
@@ -178,23 +176,20 @@ int main( int argc, char* argv[] )
 	// declaration of the struct variables to be passed to the threads
   	std::vector<task> tasks;
   	for (int i = 0; i < n_threads; i++) {
-  		task newTask = {input_image};
+  		task newTask = {input_image, filtered_image};
   		tasks.push_back(newTask);
   	}
 
 	// create threads
 	for(int i = 0; i < n_threads; i++) {
-		struct task current_task = tasks[i];// = {input_image, filtered_image};
 		if (i != n_threads - 1) {
-			current_task.firstRow = n_rows / n_threads * i;
-			current_task.lastRow = current_task.firstRow + n_rows / n_threads - 1;
+			tasks[i].firstRow = n_rows / n_threads * i;
+			tasks[i].lastRow = tasks[i].firstRow + n_rows / n_threads;
 		} else {
-			current_task.firstRow = n_rows / n_threads * i;
-			current_task.lastRow = n_rows - 1;
+			tasks[i].firstRow = n_rows / n_threads * i;
+			tasks[i].lastRow = n_rows - 1;
 		}
-		current_task.window_size = window_size;
-		current_task.id = i;
-		tasks[i] = current_task;
+		tasks[i].window_size = window_size;
 		pthread_create(&threads[i], NULL, func, (void *)(&tasks[i]));
 	}
 

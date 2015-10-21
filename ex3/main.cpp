@@ -42,20 +42,26 @@ float median_filter_pixel( const image_matrix& input_image_,
 // to process its assigned range
 struct task
 {
-  // ...
+	image_matrix& input_image;
+	//image_matrix& filtered_image;
+	int firstRow, lastRow, window_size, id;
 };
-
 
 // function run by each thread
 void* func( void* arg ) 
 {
-  task* t_arg = ( task* )arg;
+  	task* t_arg = ( task* )arg;
 
-  // ...
-  // perform the filtering on the range assigned to this thread
-  // ...
+  	std::cout << t_arg->id << std::endl;
+  	/*int n_cols = t_arg->input_image.get_n_cols();
 
-  pthread_exit( NULL );
+  	for( int r = t_arg->firstRow; r < t_arg->lastRow; r++ ) {
+	  	for( int c = 0; c < n_cols; c++ ) {
+			float p_rc_filt = median_filter_pixel( t_arg->input_image, r, c, t_arg->window_size );
+			t_arg->filtered_image.set_pixel( r, c, p_rc_filt );
+	  	}
+	}*/
+  	pthread_exit( NULL );
 }
 
 
@@ -161,7 +167,6 @@ int main( int argc, char* argv[] )
 		filtered_image.set_pixel( r, c, p_rc_filt );
 	  }
 	}
-	float p_rc_filt = median_filter_pixel( input_image, 2, 2, window_size);
 	// ***********************************
   }
   else if( mode == 1 )
@@ -169,12 +174,34 @@ int main( int argc, char* argv[] )
 	// ******   PARALLEL VERSION    ******
 
 	// declaration of pthread_t variables for the threads
-
+  	pthread_t threads [n_threads];
 	// declaration of the struct variables to be passed to the threads
+  	std::vector<task> tasks;
+  	for (int i = 0; i < n_threads; i++) {
+  		task newTask = {input_image};
+  		tasks.push_back(newTask);
+  	}
 
 	// create threads
+	for(int i = 0; i < n_threads; i++) {
+		struct task current_task = tasks[i];// = {input_image, filtered_image};
+		if (i != n_threads - 1) {
+			current_task.firstRow = n_rows / n_threads * i;
+			current_task.lastRow = current_task.firstRow + n_rows / n_threads - 1;
+		} else {
+			current_task.firstRow = n_rows / n_threads * i;
+			current_task.lastRow = n_rows - 1;
+		}
+		current_task.window_size = window_size;
+		current_task.id = i;
+		tasks[i] = current_task;
+		pthread_create(&threads[i], NULL, func, (void *)(&tasks[i]));
+	}
 
 	// wait for termination of threads
+	for (int i = 0; i < n_threads; ++i) {
+		pthread_join(threads[i], NULL);
+	}
 
 	// ***********************************
   }

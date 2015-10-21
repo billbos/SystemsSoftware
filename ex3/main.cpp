@@ -187,7 +187,7 @@ int main( int argc, char* argv[] )
 			tasks[i].lastRow = tasks[i].firstRow + n_rows / n_threads;
 		} else {
 			tasks[i].firstRow = n_rows / n_threads * i;
-			tasks[i].lastRow = n_rows - 1;
+			tasks[i].lastRow = n_rows;
 		}
 		tasks[i].window_size = window_size;
 		pthread_create(&threads[i], NULL, func, (void *)(&tasks[i]));

@@ -34,7 +34,12 @@ float median_filter_pixel( const image_matrix& input_image_,
 	}
 
 	std::sort(window_vector.begin(), window_vector.end());
-	filtered_value = window_vector[window_vector.size() / 2];
+	if (window_vector.size() % 2 != 0) {
+		filtered_value = window_vector[window_vector.size() / 2 + 1];
+	} else {
+		filtered_value = (window_vector[window_vector.size() / 2 - 1] + window_vector[window_vector.size() / 2])/2;
+	}
+	
 	return filtered_value;
 }
 

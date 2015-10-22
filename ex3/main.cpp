@@ -22,13 +22,9 @@ float median_filter_pixel( const image_matrix& input_image_,
 	std::vector<float> window_vector;
 	
 	for (int i = std::max(0, r_ - window_size_/2); i <= r_ + window_size_/2; i++) {
-		if (i >= n_rows) {
-			break;
-		}
+		if (i >= n_rows) { break; }
 		for (int j = std::max(0, c_ - window_size_/2); j <= c_ + window_size_/2; j++) {
-			if (j >= n_cols) {
-				break;
-			}
+			if (j >= n_cols) { break; }
 			window_vector.push_back(input_image_.get_pixel(i, j));    
 		}
 	}

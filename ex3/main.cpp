@@ -22,7 +22,7 @@ float median_filter_pixel( const image_matrix& input_image_,
 	std::vector<float> window_vector;
 	
 	//for every p(r,c), we begin at r - window_size/2 and stop at r + window_size/2
-	//since there is a possibility to start at a location which is out of bound (i.e. we start at the left corner)
+	//since there is a possibility to start at a location which is out of bound (i.e. p(r,c) is at the left edge)
 	//we only allow starting points which are greater than or equal 0
 	for (int i = std::max(0, r_ - window_size_/2); i <= r_ + window_size_/2; i++) {
 		//if we are to overstep the right corner, we stop and go to the next row

@@ -21,17 +21,23 @@ float median_filter_pixel( const image_matrix& input_image_,
 	float filtered_value;
 	std::vector<float> window_vector;
 	
+	//for every p(r,c), we begin at r - window_size/2 and stop at r + window_size/2
+	//since there is a possibility to start at a location which is out of bound (i.e. we start at the corner)
+	//we only allow starting points which are greater than or equal 0
 	for (int i = std::max(0, r_ - window_size_/2); i <= r_ + window_size_/2; i++) {
+		//if we are to overstep the right corner, we stop and go to the next row
 		if (i >= n_rows) { break; }
+		//the same logic as above, only now for columns instead of rows
 		for (int j = std::max(0, c_ - window_size_/2); j <= c_ + window_size_/2; j++) {
 			if (j >= n_cols) { break; }
 			window_vector.push_back(input_image_.get_pixel(i, j));    
 		}
 	}
 
+	//we need to sort the vector to calculate the median
 	std::sort(window_vector.begin(), window_vector.end());
 	if (window_vector.size() % 2 != 0) {
-		filtered_value = window_vector[window_vector.size() / 2 + 1];
+		filtered_value = window_vector[window_vector.size() / 2];
 	} else {
 		filtered_value = (window_vector[window_vector.size() / 2 - 1] + window_vector[window_vector.size() / 2])/2;
 	}
@@ -54,6 +60,7 @@ void* func( void* arg )
   	task* t_arg = ( task* )arg;
   	
   	int n_cols = t_arg->input_image.get_n_cols();
+  	//iterate through the bounds which are provided by the t_arg struct and calculate each pixel inside the bound
   	for( int r = t_arg->firstRow; r < t_arg->lastRow; r++ ) {
 	  	for( int c = 0; c < n_cols; c++ ) {
 			float p_rc_filt = median_filter_pixel( t_arg->input_image, r, c, t_arg->window_size );
@@ -175,6 +182,9 @@ int main( int argc, char* argv[] )
 	// declaration of pthread_t variables for the threads
   	pthread_t threads [n_threads];
 	// declaration of the struct variables to be passed to the threads
+	// we need to save the struct variables inside a vector, since the 
+	// struct contains references to images and references cannot be automatically
+	// initialized. Therefore we do it by hand 
   	std::vector<task> tasks;
   	for (int i = 0; i < n_threads; i++) {
   		task newTask = {input_image, filtered_image};
@@ -183,6 +193,8 @@ int main( int argc, char* argv[] )
 
 	// create threads
 	for(int i = 0; i < n_threads; i++) {
+		//calculate the bounds for each thread. We split the rows so that
+		//each thread has approximately the same amount of work to do
 		if (i != n_threads - 1) {
 			tasks[i].firstRow = n_rows / n_threads * i;
 			tasks[i].lastRow = tasks[i].firstRow + n_rows / n_threads;

@@ -1,0 +1,16 @@
+Authors:
+Bill Bosshard (12-933-255)
+Lukas Vollenweider (13-751-888)
+
+Functionality
+The program opens a matrix (a .txt file) which represents a grayscaled image. It then fixed the pixels with wrong values by replaceing the value of every pixel with the median of the values of its surrounding pixels.
+
+Input parameters
+This program needs four input parameters
+- A string corresponding to the full path of the file containing the input image
+- An integer corresponding to the window size
+- An integer corresponding to the number of threads to be created
+- An integer that controls whether to run the serial (0) or the parallel (1) version
+
+Output
+A matrix (filtered.txt) which contains the corrected values

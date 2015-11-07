@@ -4,24 +4,99 @@
 #include <algorithm>
 #include <cstdlib>
 
+#include <string>
+#include <sstream>
+
 #include <omp.h>
 
 #include "image_matrix.hpp"
 
+bool write_filtered_image( const std::string& filename_, const image_matrix& image_out_ );
 
-void median_filter_images( const std::vector< image_matrix >& input_images_,
-			   std::vector< image_matrix >& output_images_,
+float median_filter_pixel( const image_matrix& input_image_,
+						   int r_,
+						   int c_,
+						   int window_size_ )
+{
+	int n_rows = input_image_.get_n_rows();
+	int n_cols = input_image_.get_n_cols();
+	
+	float filtered_value;
+	std::vector<float> window_vector;
+	
+	//for every p(r,c), we begin at r - window_size/2 and stop at r + window_size/2
+	//since there is a possibility to start at a location which is out of bound (i.e. p(r,c) is at the left edge)
+	//we only allow starting points which are greater than or equal to 0
+	for (int i = std::max(0, r_ - window_size_/2); i <= r_ + window_size_/2; i++) {
+		//if we are to overstep the right corner, we stop and go to the next row
+		if (i >= n_rows) { break; }
+		//the same logic as above applies here, only now for columns instead of rows
+		for (int j = std::max(0, c_ - window_size_/2); j <= c_ + window_size_/2; j++) {
+			if (j >= n_cols) { break; }
+			window_vector.push_back(input_image_.get_pixel(i, j));    
+		}
+	}
+
+	//we need to sort the vector to calculate the median
+	std::sort(window_vector.begin(), window_vector.end());
+	if (window_vector.size() % 2 != 0) {
+		filtered_value = window_vector[window_vector.size() / 2];
+	} else {
+		filtered_value = (window_vector[window_vector.size() / 2 - 1] + window_vector[window_vector.size() / 2])/2;
+	}
+	
+	return filtered_value;
+}
+
+void serialExecution(const std::vector<image_matrix>& input_images_,
+			   std::vector<image_matrix>& output_images_, int window_size_, int n_threads_, int mode_) {
+	#pragma omp parallel for num_threads(n_threads_) if(mode_ == 1) schedule(static, 1)
+	for (int i = 0; i < input_images_.size(); i++) {
+		int n_rows = input_images_[i].get_n_rows();
+		int n_cols = input_images_[i].get_n_cols();
+
+		for( int r = 0; r < n_rows; r++ ) {
+	  		for( int c = 0; c < n_cols; c++ ) {
+			float p_rc_filt = median_filter_pixel( input_images_[i], r, c, window_size_);
+			output_images_[i].set_pixel( r, c, p_rc_filt );		  	
+			}
+		}
+	}
+}
+
+void parallelExecution(const std::vector<image_matrix>& input_images_,
+			   std::vector<image_matrix>& output_images_, int window_size_, int n_threads_) {
+	for (int i = 0; i < input_images_.size(); i++) {
+		int n_rows = input_images_[i].get_n_rows();
+		int n_cols = input_images_[i].get_n_cols();
+
+		int chunkSize = n_rows / n_threads_;
+
+		#pragma omp parallel for num_threads(n_threads_) schedule(static, chunkSize)
+		for( int r = 0; r < n_rows; r++ ) {
+	  		for( int c = 0; c < n_cols; c++ ) {
+			float p_rc_filt = median_filter_pixel( input_images_[i], r, c, window_size_);
+			output_images_[i].set_pixel( r, c, p_rc_filt );		  	
+			}
+		}
+	}
+}
+
+void median_filter_images( const std::vector<image_matrix>& input_images_,
+			   std::vector<image_matrix>& output_images_,
 			   const int window_size_,
 			   const int n_threads_,
 			   const int mode_ )
 {
   // perform filtering of input_images_, selecting the appropriate algorithm based on mode_
-
-  // ...
+	switch (mode_) {
+		case 0: 
+		case 1: serialExecution(input_images_, output_images_, window_size_, n_threads_, mode_);
+				break;
+		case 2: parallelExecution(input_images_, output_images_, window_size_, n_threads_);
+				break;
+	}
 }
-
-
-
 
 bool read_input_image( const std::string& filename_, image_matrix& image_in_ )
 {
@@ -89,7 +164,6 @@ int main( int argc, char* argv[] )
     std::cerr << "Not enough arguments provided to " << argv[ 0 ] << ". Terminating." << std::endl;
     return 1;
   }
-
   // get input arguments
   int window_size = atoi( argv[ 1 ] );
   int n_threads = atoi( argv[ 2 ] );
@@ -126,17 +200,29 @@ int main( int argc, char* argv[] )
   {
     // invoke appropriate filtering routine based on selected mode
     // ...
-    
+    median_filter_images(input_images, filtered_images, window_size, n_threads, mode);
     // write filtered matrices to text files
     // ...
+    for (int i = 0; i < filtered_images.size(); i++) {
+      write_filtered_image("OUT_" + filenames[i], filtered_images[i]);
+    }
   }
   else if( mode == 3 )       // benchmark mode
   {
     double start;
+    double end;
     double time[ 3 ];
-
     // run filtering in each mode and time each execution
     // ...
+    start = omp_get_wtime();
+
+    for (int i = 0; i < 3; i++) {
+  		start = omp_get_wtime();
+    	median_filter_images(input_images, filtered_images, window_size, n_threads, i);
+    	end = omp_get_wtime();
+    	time[i] = end - start;
+    	std::cout << time[i] << std::endl;
+    }
 
     // print timing summary
     // ...

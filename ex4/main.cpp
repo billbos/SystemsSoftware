@@ -50,6 +50,10 @@ float median_filter_pixel( const image_matrix& input_image_,
 
 void serialExecution(const std::vector<image_matrix>& input_images_,
 			   std::vector<image_matrix>& output_images_, int window_size_, int n_threads_, int mode_) {
+  //if mode == 1, we use the parallel approach at an image level to fix the wrong pixels
+  //we use chunksize 1 such that every thread does not more than one iteration at a time
+  //we don't need to define any scope for the variables since each thread accesses its own image from
+  //input_images_, which has scoped "shared" by default. Local variables are by default private so we're save
 	#pragma omp parallel for num_threads(n_threads_) if(mode_ == 1) schedule(static, 1)
 	for (int i = 0; i < input_images_.size(); i++) {
 		int n_rows = input_images_[i].get_n_rows();
@@ -66,18 +70,23 @@ void serialExecution(const std::vector<image_matrix>& input_images_,
 
 void parallelExecution(const std::vector<image_matrix>& input_images_,
 			   std::vector<image_matrix>& output_images_, int window_size_, int n_threads_) {
+  //parallel at pixel level
+  //therefore, we loop through every image from input_images_
+  //and do the fixing stuff with multiple threads
 	for (int i = 0; i < input_images_.size(); i++) {
 		int n_rows = input_images_[i].get_n_rows();
 		int n_cols = input_images_[i].get_n_cols();
 
 		int chunkSize = n_rows / n_threads_;
 
+    //again: local variables are by default private and output_images_ is by default shared so no 
+    //need to define any scope for the variables
 		#pragma omp parallel for num_threads(n_threads_) schedule(static, chunkSize)
 		for( int r = 0; r < n_rows; r++ ) {
 	  		for( int c = 0; c < n_cols; c++ ) {
-			float p_rc_filt = median_filter_pixel( input_images_[i], r, c, window_size_);
-			output_images_[i].set_pixel( r, c, p_rc_filt );		  	
-			}
+			      float p_rc_filt = median_filter_pixel( input_images_[i], r, c, window_size_);
+			      output_images_[i].set_pixel( r, c, p_rc_filt );		  	
+			  }
 		}
 	}
 }
@@ -90,6 +99,8 @@ void median_filter_images( const std::vector<image_matrix>& input_images_,
 {
   // perform filtering of input_images_, selecting the appropriate algorithm based on mode_
 	switch (mode_) {
+    //mode 1 and 2 are basically the same, except that mode 2 is a parallel approach of mode 1 so 
+    //we fall through case 0 and check inside the pragma statement if we should use the parallel approach or not
 		case 0: 
 		case 1: serialExecution(input_images_, output_images_, window_size_, n_threads_, mode_);
 				break;
@@ -214,18 +225,17 @@ int main( int argc, char* argv[] )
     double time[ 3 ];
     // run filtering in each mode and time each execution
     // ...
-    start = omp_get_wtime();
-
     for (int i = 0; i < 3; i++) {
+      //since we can't stop the timer, we calculate the starting time from the current time (after the 
+      //execution of the method) to get the benchmark
   		start = omp_get_wtime();
     	median_filter_images(input_images, filtered_images, window_size, n_threads, i);
     	end = omp_get_wtime();
     	time[i] = end - start;
-    	std::cout << time[i] << std::endl;
+          // print timing summary
+          // we use Mode 1 - 4 instead of the input modes 0 - 3
+    	std::cout << "Mode" << i + 1  << ": " << time[i] << std::endl;
     }
-
-    // print timing summary
-    // ...
   }
   else
   {

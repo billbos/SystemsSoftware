@@ -1,0 +1,16 @@
+Authors:
+Bill Bosshard (12-933-255)
+Lukas Vollenweider (13-751-888)
+
+Functionality
+The program takes multiple grayscale images (represented by intensity values in a matrix) and fixes the wrong pixels according to a user-selected approach (mode 0-2). It is also able to benchmark this three approaches (mode 3).
+
+Input parameters
+This program needs following input parameters
+- An integer corresponding to the window size
+- An integer corresponding to the number of threads to be created
+- An integer that controls which run mode to execute (0-3)
+- A list of strings corresponding to the filenames of the input image matrices
+
+Output
+Multiple matrices (OUT_imagename.txt) with the corrected values

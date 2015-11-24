@@ -1,0 +1,15 @@
+Authors:
+Bill Bosshard (12-933-255)
+Lukas Vollenweider (13-751-888)
+
+Functionality
+The program allows two users (clients) to play tic tac toe on the same machine thanks to the use of a UNIX domain socket. It has a server, which updates the clients with the corresponding moves from the clients and closes the connection when the game finished. When the game finished, the connections are closed and the UNIX domain socket gets deleted.
+
+Input parameters
+Server:
+- Path to the directory, in which the UNIX domain socket will be created
+Client:
+- Path to the directory, in which the UNIX domain socket will be created
+
+Output
+None

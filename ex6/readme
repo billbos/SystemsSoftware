@@ -1,0 +1,17 @@
+Authors:
+Bill Bosshard (12-933-255)
+Lukas Vollenweider (13-751-888)
+
+Functionality
+The program simulates the behaviour of a memory allocator in a multi-process environment. The threads try to allocate memory blocks of random length and deallocate those after a randomly chosen computation time. This happens in a thread-safe environment: If two threads want to allocate memory at the same time, on of them (the one who was slower) has to wait until the first thread is finished. The user can finish the simulation by entering 'e'. Then the threads deallocate the allocated memory and quit.
+
+Input parameters
+- number of threads
+- number of memory blocks the simulator has
+- min number of blocks a thread has to allocate
+- max number of threads a thread can allocate
+- min number of time a thread has to wait
+- max number of time a thread can wait
+
+Output
+None
